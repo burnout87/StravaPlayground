@@ -7,9 +7,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'StravaPlayground';
-  urlAuthorization = 'http://www.strava.com/oauth/authorize?client_id=40265&' +
-  'response_type=code&' +
-  'redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=read';
+  requestAuthorizationUrlAPI = 'http://localhost:8080/getAuthenticationUrl';
 
   authorize() {
     const xhr = new XMLHttpRequest();
@@ -18,12 +16,13 @@ export class AppComponent {
         if (xhr.status === 200) {
           // resolve(JSON.parse(xhr.response))
           console.log(xhr.response);
+          window.open(xhr.response, "_blank");
         } else {
           console.log(xhr.response);
         }
       }
     };
-    xhr.open('GET', this.urlAuthorization, true);
+    xhr.open('GET', this.requestAuthorizationUrlAPI, true);
     xhr.send();
   }
 }
