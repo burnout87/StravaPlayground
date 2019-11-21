@@ -9,6 +9,10 @@ export class AppComponent {
   title = 'StravaPlayground';
   requestAuthorizationUrlAPI = 'http://localhost:8080/getAuthenticationUrl';
 
+  onAuthSuccess(authSuccessUrl) {    
+        window.onClose(authSuccessUrl);
+    }
+  
   authorize() {
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = () => {
@@ -16,10 +20,18 @@ export class AppComponent {
         if (xhr.status === 200) {
           // resolve(JSON.parse(xhr.response))
           console.log(xhr.response);
-          window.open(xhr.response, "_blank");
-        } else {
-          console.log(xhr.response);
-        }
+          authWindow = window.open(xhr.response, "_blank");
+          $.ajax({
+                  url: "/auth/google/",
+                  type: "POST",
+                  data: {username : uname, password: pass}                      
+                }).success(function(data){
+                    var redirectUrl = data.url; // or "/home" as you had mentioned
+                    onAuthSuccess(redirectUrl);
+                });
+          } else {
+            console.log(xhr.response);
+          }
       }
     };
     xhr.open('GET', this.requestAuthorizationUrlAPI, true);
