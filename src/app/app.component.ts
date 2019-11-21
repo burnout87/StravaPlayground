@@ -14,8 +14,6 @@ export class AppComponent {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
-          // resolve(JSON.parse(xhr.response))
-          console.log(xhr.response);
           window.open(xhr.response, "_blank");
         } else {
           console.log(xhr.response);
