@@ -25,6 +25,10 @@
     flex: 1;
   }
 
+  .athleteField {
+    font-weight: bold;
+  }
+
   .toolbar {
     height: 60px;
     margin: -8px;
