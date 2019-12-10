@@ -6,7 +6,7 @@ export class Athlete {
     city: string;
     state: string;
     country: string;
-
+    
     constructor(
         id: number, 
         username: string, 

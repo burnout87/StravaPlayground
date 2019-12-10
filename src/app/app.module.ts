@@ -5,11 +5,13 @@ import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { WebSocketService } from './shared/web-socket.service';
 import { AthleteDataComponent } from './athlete-data/athlete-data.component';
+import { ListActivityComponent } from './list-activity/list-activity.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AthleteDataComponent
+    AthleteDataComponent,
+    ListActivityComponent
   ],
   imports: [
     BrowserModule,

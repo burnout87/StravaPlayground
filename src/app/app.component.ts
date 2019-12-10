@@ -4,7 +4,8 @@ import { WebSocketService } from './shared/web-socket.service';
 import { Observable, throwError, Subject } from 'rxjs';
 import { retry, catchError, map } from 'rxjs/operators';
 import {environment} from '../environments/environment';
-import { Athlete } from './shared/athlete';
+import { Athlete } from './shared/Athlete';
+import { Activity } from './shared/Activity';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +20,10 @@ export class AppComponent {
   private messages: Subject<any>;
   private authSent: boolean;
   private athleteData: Athlete = null;
-
+  private athleteActivities: Array<Activity> = new Array();
+  
   constructor(private activatedRoute: ActivatedRoute, private wsService: WebSocketService) { 
+
     this.messages = <Subject<any>>wsService.connect(environment.ws_url)
       .pipe(map((response: any): any => {
         return response;
@@ -79,7 +82,7 @@ export class AppComponent {
   }
 
   getBearerToken(code: string, state: string, scope: string) {
-    environment.sendCodeToBackEnd += "?code=" + code + "&state=" + state + "&scope=" + scope;
+    var endpoint: string = environment.sendCodeToBackEnd += "?code=" + code + "&state=" + state + "&scope=" + scope;
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4) {
@@ -99,7 +102,33 @@ export class AppComponent {
           console.log("Error sending the code to the backend");
       }
     };
-    xhr.open('GET', environment.sendCodeToBackEnd, true);
+    xhr.open('GET', endpoint, true);
+    xhr.send();
+  }
+
+  updateAthleteActivities() {
+    var endpoint: string = environment.getAthleteActivities + "?before=" + 1572978305 + "&after=" + 1567704305 + "&page=" + 1 + "&per_page=" + 30;
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+            let obj = JSON.parse(xhr.response);
+            obj.forEach((element: any)  => {
+              this.athleteActivities.push(new Activity(
+                element.id, element.name, element.distance, element.moving_time,
+                element.elapsed_time, element.total_elevation_gain, element.type,
+                element.workout_type, element.start_date, element.start_date,
+                element.timezone, element.number, element.start_latlng, 
+                element.end_latlng, element.loation_city, element.locatio_state,
+                element.location_country
+              ));
+            });
+        }
+      } else {
+          console.log("Error sending the code to the backend");
+      }
+    };
+    xhr.open('GET', endpoint, true);
     xhr.send();
   }
 

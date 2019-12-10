@@ -13,5 +13,15 @@
     </button>
   </div>
 
-  <app-athlete-data [athleteData]="athleteData"></app-athlete-data>
+  <app-athlete-data 
+    *ngIf="athleteData != null" 
+    [athleteData]="athleteData">
+  </app-athlete-data>
+
+  <app-list-activity 
+    (athleteActivitiesLoad)="updateAthleteActivities()" 
+    *ngIf="athleteData != null" 
+    [athleteActivities]="athleteActivities">
+  </app-list-activity>
 </div>
+    
