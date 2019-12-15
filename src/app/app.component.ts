@@ -65,71 +65,43 @@ export class AppComponent {
   }
 
   authorize() {
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          console.log("Redirecting to strava login/authorization");
-          this.windowHandleAuth = window.open(xhr.response, 'OAuth2 Login', "width=500, height=600, left=0, top=0");
-          this.state = "authorization";
-        }
-      } else {
-          console.log("Error requesting the authorization URL");
-      }
-    };
-    xhr.open('GET', environment.requestAuthorizationUrlAPI, true);
-    xhr.send();
+    this.wsService.authorize()
+      .subscribe((data: string) => {
+        this.windowHandleAuth = window.open(data, 'OAuth2 Login', "width=500, height=600, left=0, top=0");
+        this.state = "authorization";
+      });
   }
 
   getBearerToken(code: string, state: string, scope: string) {
-    var endpoint: string = environment.sendCodeToBackEnd += "?code=" + code + "&state=" + state + "&scope=" + scope;
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-            let obj = JSON.parse(xhr.response);
-            this.athleteData = new Athlete(
-              obj.athlete.id,
-              obj.athlete.username,
-              obj.athlete.firstname,
-              obj.athlete.lastname,
-              obj.athlete.city,
-              obj.athlete.state,
-              obj.athlete.country
-            );
-        }
-      } else {
-          console.log("Error sending the code to the backend");
-      }
-    };
-    xhr.open('GET', endpoint, true);
-    xhr.send();
+    this.wsService.getBearerToken(code, state, scope)
+      .subscribe((data) => {
+        this.athleteData = new Athlete(
+          data.athlete.id,
+          data.athlete.username,
+          data.athlete.firstname,
+          data.athlete.lastname,
+          data.athlete.city,
+          data.athlete.state,
+          data.athlete.country
+        );
+      });
   }
 
-  updateAthleteActivities() {
-    var endpoint: string = environment.getAthleteActivities + "?before=" + 1572978305 + "&after=" + 1567704305 + "&page=" + 1 + "&per_page=" + 30;
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-            let obj = JSON.parse(xhr.response);
-            obj.forEach((element: any)  => {
-              this.athleteActivities.push(new Activity(
-                element.id, element.name, element.distance, element.moving_time,
-                element.elapsed_time, element.total_elevation_gain, element.type,
-                element.workout_type, element.start_date, element.start_date,
-                element.timezone, element.number, element.start_latlng, 
-                element.end_latlng, element.loation_city, element.locatio_state,
-                element.location_country
-              ));
-            });
-        }
-      } else {
-          console.log("Error sending the code to the backend");
-      }
-    };
-    xhr.open('GET', endpoint, true);
-    xhr.send();
+  updateAthleteActivitiesList() {
+    this.wsService.getAthleteActivities()
+      .subscribe((data) => {
+        console.log(data);
+        data.forEach((element: any)  => {
+            this.athleteActivities.push(new Activity(
+              element.id, element.name, element.distance, element.moving_time,
+              element.elapsed_time, element.total_elevation_gain, element.type,
+              element.workout_type, element.start_date, element.start_date,
+              element.timezone, element.number, element.start_latlng, 
+              element.end_latlng, element.loation_city, element.locatio_state,
+              element.location_country
+            ));
+      });
+    });
   }
 
 }
