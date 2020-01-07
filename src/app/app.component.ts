@@ -21,7 +21,7 @@ export class AppComponent {
   private authSent: boolean;
   private athleteData: Athlete = null;
   private athleteActivities: Array<Activity> = new Array();
-  private bc = new BroadcastChannel('test_channel');
+  private bc = new BroadcastChannel('tabsCommChannel');
   
   constructor(private activatedRoute: ActivatedRoute, private wsService: WebSocketService) { 
     // Example of a simple event handler that only
@@ -29,9 +29,8 @@ export class AppComponent {
     this.bc.addEventListener('message', (event) => {
       var msg = JSON.parse(event.data);
       this.stateTitle = msg.stateTitle;
-      
-      if(this.state == "authorization") {
-        this.state = 'authorized';
+      if(this.state == "authorization" && msg.state == 'authorized') {
+        this.state = msg.state;
         this.getBearerToken(msg.code, msg.state, msg.scope);
       }
     });
@@ -53,8 +52,8 @@ export class AppComponent {
           "state": state,
           "stateTitle": this.stateTitle
         });
-        window.close();
         this.bc.postMessage(obj);
+        window.close();
       }
     });
   }
