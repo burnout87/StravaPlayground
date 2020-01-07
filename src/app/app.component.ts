@@ -21,26 +21,20 @@ export class AppComponent {
   private authSent: boolean;
   private athleteData: Athlete = null;
   private athleteActivities: Array<Activity> = new Array();
+  private bc = new BroadcastChannel('test_channel');
   
   constructor(private activatedRoute: ActivatedRoute, private wsService: WebSocketService) { 
-
-    this.messages = <Subject<any>>wsService.connect(environment.ws_url)
-      .pipe(map((response: any): any => {
-        return response;
-      }));
-    this.messages.subscribe(msg => {
-        console.log("data arrived fron the server");
-        console.log(msg.text.text);
-        msg = JSON.parse(msg.text.text);
-        this.stateTitle = msg.stateTitle;
-        if(this.stateTitle == "Authorized!" && this.state == "authorized")
-          window.close();
-        else if(this.stateTitle == "Authorized!" && this.state == "authorization") {
-          this.state = 'authorized';
-          this.getBearerToken(msg.code, msg.state, msg.scope);
-        }
-          
-      });
+    // Example of a simple event handler that only
+    // logs the event to the console
+    this.bc.addEventListener('message', (event) => {
+      var msg = JSON.parse(event.data);
+      this.stateTitle = msg.stateTitle;
+      
+      if(this.state == "authorization") {
+        this.state = 'authorized';
+        this.getBearerToken(msg.code, msg.state, msg.scope);
+      }
+    });
    }
 
   ngOnInit() {
@@ -59,7 +53,8 @@ export class AppComponent {
           "state": state,
           "stateTitle": this.stateTitle
         });
-        this.messages.next(obj);
+        window.close();
+        this.bc.postMessage(obj);
       }
     });
   }
