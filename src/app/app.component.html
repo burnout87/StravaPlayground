@@ -1,4 +1,5 @@
 <div class="content" role="main">
+  
 
   <h2>{{stateTitle}}</h2>
 
@@ -18,10 +19,14 @@
     [athleteData]="athleteData">
   </app-athlete-data>
 
+  <app-map
+    *ngIf="athleteData != null" >
+  </app-map>
+
   <app-list-activity 
     (athleteActivitiesLoad)="updateAthleteActivitiesList()" 
     *ngIf="athleteData != null" 
     [athleteActivities]="athleteActivities">
   </app-list-activity>
+
 </div>
-    

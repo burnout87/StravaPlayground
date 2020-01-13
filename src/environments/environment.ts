@@ -6,8 +6,10 @@ export const environment = {
   production: false,
   ws_url: 'ws://localhost:3100',
   requestAuthorizationUrlAPI: 'http://localhost:8080/getAuthenticationUrl',
-  sendCodeToBackEnd: 'http://localhost:8080/getResponseAuthenticationUrl/',
-  getAthleteActivities: 'http://localhost:8080/getActivities/'
+  getAuthenticationInfo: 'http://localhost:8080/getAuthenticationInfo/',
+  getAthleteActivities: 'http://localhost:8080/getActivities/',
+  getAuthorizationState: 'http://localhost:8080/getAuthorizationState/',
+  getAthleteInfo: 'http://localhost:8080/getAthleteInfo/'
 };
 
 /*

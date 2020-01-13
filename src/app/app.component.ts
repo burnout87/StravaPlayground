@@ -23,15 +23,14 @@ export class AppComponent {
   private athleteActivities: Array<Activity> = new Array();
   private bc = new BroadcastChannel('tabsCommChannel');
   
-  constructor(private activatedRoute: ActivatedRoute, private wsService: WebSocketService) { 
-    // Example of a simple event handler that only
-    // logs the event to the console
+  constructor(private activatedRoute: ActivatedRoute, private wsService: WebSocketService) {
     this.bc.addEventListener('message', (event) => {
       var msg = JSON.parse(event.data);
       this.stateTitle = msg.stateTitle;
-      if(this.state == "authorization" && msg.state == 'authorized') {
+      if(this.state == "authorization" && msg.state == "authorized") {
         this.state = msg.state;
-        this.getBearerToken(msg.code, msg.state, msg.scope);
+        if(msg.code != null && msg.state != null && msg.scope != null)
+          this.getBearerToken(msg.code, msg.state, msg.scope);
       }
     });
    }
@@ -39,6 +38,7 @@ export class AppComponent {
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe(params => {
       if(params['code'] && params['scope']) {
+        // we are on the authorizatin page
         this.state = 'authorized';
         const code = params['code'];
         const scope = params['scope'];
@@ -54,8 +54,26 @@ export class AppComponent {
         });
         this.bc.postMessage(obj);
         window.close();
+      } 
+      else {
+        // not on the authorization page, let's check the authorization state
+        this.getAuthorizationState();
       }
     });
+  }
+
+  getAuthorizationState() {
+    this.wsService.getAuthorizationState()
+      .subscribe((data) => {
+        this.state = data.state;
+        if(this.state == "authorized")
+        {
+          this.stateTitle = "Authorized!";
+          // let's query athlete data
+          this.getAthleteInfo();
+        }
+          
+      });
   }
 
   authorize() {
@@ -64,6 +82,21 @@ export class AppComponent {
         this.windowHandleAuth = window.open(data, 'OAuth2 Login', "width=500, height=600, left=0, top=0");
         this.state = "authorization";
       });
+  }
+
+  getAthleteInfo() {
+    this.wsService.getAthleteInfo()
+      .subscribe((data) => {
+        this.athleteData = new Athlete(
+          data.id,
+          data.username,
+          data.firstname,
+          data.lastname,
+          data.city,
+          data.state,
+          data.country
+        );
+    });
   }
 
   getBearerToken(code: string, state: string, scope: string) {

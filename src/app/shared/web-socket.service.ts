@@ -56,12 +56,22 @@ export class WebSocketService {
   }
 
   public getBearerToken(code: string, state: string, scope: string): Rx.Observable<any> {
-    var endpoint: string = environment.sendCodeToBackEnd += "?code=" + code + "&state=" + state + "&scope=" + scope;
+    var endpoint: string = environment.getAuthenticationInfo += "?code=" + code + "&state=" + state + "&scope=" + scope;
     return this.http.get(endpoint);
   }
 
   public getAthleteActivities(): Rx.Observable<any> {
     var endpoint: string = environment.getAthleteActivities + "?before=" + 1572978305 + "&after=" + 1567704305 + "&page=" + 1 + "&per_page=" + 30;
+    return this.http.get(endpoint);
+  }
+
+  public getAuthorizationState(): Rx.Observable<any> {
+    var endpoint: string = environment.getAuthorizationState;
+    return this.http.get(endpoint);
+  }
+
+  public getAthleteInfo(): Rx.Observable<any> {
+    var endpoint: string = environment.getAthleteInfo;
     return this.http.get(endpoint);
   }
 }

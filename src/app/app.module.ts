@@ -7,13 +7,15 @@ import { AppComponent } from './app.component';
 import { WebSocketService } from './shared/web-socket.service';
 import { AthleteDataComponent } from './athlete-data/athlete-data.component';
 import { ListActivityComponent } from './list-activity/list-activity.component';
+import { MapComponent } from './map/map.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     AthleteDataComponent,
-    ListActivityComponent
+    ListActivityComponent,
+    MapComponent
   ],
   imports: [
     BrowserModule,
