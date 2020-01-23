@@ -14,6 +14,7 @@
     <div class="table-wrapper" *ngIf="athleteActivities.length > 0">
       <table class="fl-table">
         <tr>
+          <th><span class="activityField"></span></th>
           <th><span class="activityField">name</span></th>
           <th><span class="activityField">distance</span></th>
           <th><span class="activityField">moving_time</span></th>
@@ -32,6 +33,7 @@
           <th><span class="activityField">location_country</span></th>
         </tr>
         <tr *ngFor="let activity of athleteActivities">
+            <td><button (click)="athleteActivityPlotEvent.emit(activity)">Load on the map</button></td>
             <td>{{activity.name}}</td>
             <td>{{activity.distance}}</td>
             <td>{{activity.moving_time}}</td>

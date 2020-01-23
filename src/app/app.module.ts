@@ -1,6 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
@@ -8,6 +7,8 @@ import { WebSocketService } from './shared/web-socket.service';
 import { AthleteDataComponent } from './athlete-data/athlete-data.component';
 import { ListActivityComponent } from './list-activity/list-activity.component';
 import { MapComponent } from './map/map.component';
+import { AuthorizationComponent } from './authorization/authorization.component';
+import { AppRoutingModule } from './app-routing.module';
 
 
 @NgModule({
@@ -15,12 +16,13 @@ import { MapComponent } from './map/map.component';
     AppComponent,
     AthleteDataComponent,
     ListActivityComponent,
-    MapComponent
+    MapComponent,
+    AuthorizationComponent
   ],
   imports: [
     BrowserModule,
-    RouterModule.forRoot([]),
-    HttpClientModule
+    HttpClientModule,
+    AppRoutingModule
   ],
   providers: [WebSocketService],
   bootstrap: [AppComponent]

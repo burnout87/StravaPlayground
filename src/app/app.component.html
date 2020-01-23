@@ -1,6 +1,5 @@
 <div class="content" role="main">
   
-
   <h2>{{stateTitle}}</h2>
 
   <div class="card-container" *ngIf="state != 'authorized'">
@@ -19,12 +18,14 @@
     [athleteData]="athleteData">
   </app-athlete-data>
 
-  <app-map
-    *ngIf="athleteData != null" >
+  <app-map 
+    [activityToPlot]="activityToPlot"
+    >
   </app-map>
 
   <app-list-activity 
-    (athleteActivitiesLoad)="updateAthleteActivitiesList()" 
+    (athleteActivitiesLoad)="updateAthleteActivitiesList()"
+    (athleteActivityPlotEvent)="updateActivityToPlot($event)"
     *ngIf="athleteData != null" 
     [athleteActivities]="athleteActivities">
   </app-list-activity>

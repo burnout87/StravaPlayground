@@ -1,9 +1,7 @@
-import { OnInit, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WebSocketService } from './shared/web-socket.service';
-import { Observable, throwError, Subject } from 'rxjs';
-import { retry, catchError, map } from 'rxjs/operators';
-import {environment} from '../environments/environment';
+import { Subject } from 'rxjs';
 import { Athlete } from './shared/Athlete';
 import { Activity } from './shared/Activity';
 
@@ -22,16 +20,11 @@ export class AppComponent {
   private athleteData: Athlete = null;
   private athleteActivities: Array<Activity> = new Array();
   private bc = new BroadcastChannel('tabsCommChannel');
+  private activityToPlot:Activity;
   
   constructor(private activatedRoute: ActivatedRoute, private wsService: WebSocketService) {
     this.bc.addEventListener('message', (event) => {
-      var msg = JSON.parse(event.data);
-      this.stateTitle = msg.stateTitle;
-      if(this.state == "authorization" && msg.state == "authorized") {
-        this.state = msg.state;
-        if(msg.code != null && msg.state != null && msg.scope != null)
-          this.getBearerToken(msg.code, msg.state, msg.scope);
-      }
+      this.processMsgBC(event.data);
     });
    }
 
@@ -60,6 +53,16 @@ export class AppComponent {
         this.getAuthorizationState();
       }
     });
+  }
+
+  processMsgBC(message:any) {
+    var msg = JSON.parse(message);
+    this.stateTitle = msg.stateTitle;
+    if(this.state == "authorization" && msg.state == "authorized") {
+      this.state = msg.state;
+      if(msg.code != null && msg.state != null && msg.scope != null)
+        this.getBearerToken(msg.code, msg.state, msg.scope);
+    }
   }
 
   getAuthorizationState() {
@@ -117,7 +120,6 @@ export class AppComponent {
   updateAthleteActivitiesList() {
     this.wsService.getAthleteActivities()
       .subscribe((data) => {
-        console.log(data);
         data.forEach((element: any)  => {
             this.athleteActivities.push(new Activity(
               element.id, element.name, element.distance, element.moving_time,
@@ -125,10 +127,15 @@ export class AppComponent {
               element.workout_type, element.start_date, element.start_date,
               element.timezone, element.number, element.start_latlng, 
               element.end_latlng, element.loation_city, element.locatio_state,
-              element.location_country
+              element.location_country,
+              element.map
             ));
-      });
+        });
     });
+  }
+
+  updateActivityToPlot(activity: Activity) {
+    this.activityToPlot = activity;
   }
 
 }

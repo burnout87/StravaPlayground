@@ -8,8 +8,11 @@ import { Activity } from '../shared/Activity';
   styleUrls: ['./list-activity.component.css']
 })
 export class ListActivityComponent {
-  @Output() athleteActivitiesLoad = new EventEmitter();
-  @Input() athleteActivities : Array<Activity> = new Array();
-  constructor() { }
 
+  @Output() athleteActivitiesLoad = new EventEmitter();
+  @Output() athleteActivityPlotEvent = new EventEmitter<Activity>();
+
+  @Input() athleteActivities: Array<Activity> = new Array();
+
+  constructor() { }
 }
