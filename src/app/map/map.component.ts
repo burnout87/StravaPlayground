@@ -20,30 +20,24 @@ export class MapComponent implements OnInit {
 
   ngOnInit() {
     this.onChanges.subscribe((data:SimpleChanges)=>{
-      for(var i in this.map._layers) {
-        if(this.map._layers[i]._path != undefined) {
-            try {
-              this.map.removeLayer(this.map._layers[i]);
-            }
-            catch(e) {
-                console.log("problem with " + e + this.map._layers[i]);
-            }
-        }
-    }
-      var marker = L.marker(data.activityToPlot.currentValue.start_latlng);
-      marker.addTo(this.map);
-      this.map.panTo(data.activityToPlot.currentValue.start_latlng, 15);
-      var coordinates = P.decode(data.activityToPlot.currentValue.map.summary_polyline);
-      L.polyline(
-        coordinates,
-        {
-            color: 'blue',
-            weight: 2,
-            opacity: .7,
-            lineJoin: 'round'
-        }
-    ).addTo(this.map);
+      this.cleanMap();
+      this.plotMarker(data.activityToPlot.currentValue.start_latlng);
+      this.plotPolyline(data.activityToPlot.currentValue.map.summary_polyline);
     });
+  }
+
+
+  public cleanMap() {
+    for(var i in this.map._layers) {
+      if(this.map._layers[i]._path != undefined) {
+        try {
+          this.map.removeLayer(this.map._layers[i]);
+        }
+        catch(e) {
+            console.log("problem with " + e + this.map._layers[i]);
+        }
+      }
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -59,16 +53,56 @@ export class MapComponent implements OnInit {
       center: [ 39.8282, -98.5795 ],
       zoom: 13
     });
-
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     });
     tiles.addTo(this.map);
+    this.map.on('moveend', (e: any)=> {
+      this.getMapBounds();
+    })
   }
 
-  private plotActivity(activity: any) {
+  getMapBounds() {
+    var width = this.map.getBounds().getEast() - this.map.getBounds().getWest();
+    var height = this.map.getBounds().getNorth() - this.map.getBounds().getSouth();
+  }
 
+  public checkPolylineVisible(polylineCoords: any, startMarkerCoords: any) {
+    var pol:any = L.polyline(
+      polylineCoords,
+      {
+          color: 'blue',
+          weight: 2,
+          opacity: .7,
+          lineJoin: 'round'
+      });
+    if (this.map.getBounds().intersects( pol.getBounds() )) {
+      pol.addTo(this.map);
+      this.plotMarker(startMarkerCoords);
+    }
+  }
+
+  public plotMarker(marker: any) {
+    if(marker != null) {
+      var marker = L.marker(marker);
+      marker.addTo(this.map);
+      // this.map.panTo(marker._latlng, 15);
+    }
+  }
+
+  public plotPolyline(polylineCoords: any) {
+    if(polylineCoords != null) {
+      // var coordinates = P.decode(polyline);
+      L.polyline(
+        polylineCoords,
+        {
+            color: 'blue',
+            weight: 2,
+            opacity: .7,
+            lineJoin: 'round'
+        }).addTo(this.map);
+      }
   }
 
 }

@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   ws_url: 'ws://localhost:3100',
   requestAuthorizationUrlAPI: 'http://localhost:8080/getAuthenticationUrl',
+  requestTokenRefreshing: 'http://localhost:8080/refreshAccessToken',
   getAuthenticationInfo: 'http://localhost:8080/getAuthenticationInfo/',
   getAthleteActivities: 'http://localhost:8080/getActivities/',
   getAuthorizationState: 'http://localhost:8080/getAuthorizationState/',

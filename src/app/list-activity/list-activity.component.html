@@ -33,7 +33,7 @@
           <th><span class="activityField">location_country</span></th>
         </tr>
         <tr *ngFor="let activity of athleteActivities">
-            <td><button (click)="athleteActivityPlotEvent.emit(activity)">Load on the map</button></td>
+            <td><button (click)="athleteActivityPlotEvent.emit(activity)" [disabled]="activity.map.summary_polyline == null">Load on the map</button></td>
             <td>{{activity.name}}</td>
             <td>{{activity.distance}}</td>
             <td>{{activity.moving_time}}</td>

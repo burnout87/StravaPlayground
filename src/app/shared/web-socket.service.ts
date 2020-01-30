@@ -5,6 +5,7 @@ import * as io from 'socket.io-client';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Athlete } from './Athlete';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -55,13 +56,20 @@ export class WebSocketService {
     return this.http.get(environment.requestAuthorizationUrlAPI, {responseType: 'text'});
   }
 
+  public refreshToken(): Rx.Observable<any> {
+    return this.http.post(environment.requestTokenRefreshing, {responseType: 'json'});
+  }
+
   public getBearerToken(code: string, state: string, scope: string): Rx.Observable<any> {
     var endpoint: string = environment.getAuthenticationInfo += "?code=" + code + "&state=" + state + "&scope=" + scope;
     return this.http.get(endpoint);
   }
 
-  public getAthleteActivities(): Rx.Observable<any> {
-    var endpoint: string = environment.getAthleteActivities + "?before=" + 1572978305 + "&after=" + 1567704305 + "&page=" + 1 + "&per_page=" + 30;
+  public getAthleteActivitiesLastMonth(): Rx.Observable<any> {
+    var nowEpoch = moment().unix();
+    var nowEpochLessAMonth = moment().subtract(2, 'months').unix();
+    
+    var endpoint: string = environment.getAthleteActivities + "?before=" + nowEpoch + "&after=" + nowEpochLessAMonth + "&page=" + 1 + "&per_page=" + 30;
     return this.http.get(endpoint);
   }
 

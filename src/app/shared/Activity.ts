@@ -19,7 +19,7 @@ export class Activity {
     location_city: string;
     location_state: string;
     location_country: string;
-    map: any;
+    encodedMap: any;
 
     constructor(id: number, 
         name: string, 
@@ -38,7 +38,7 @@ export class Activity {
         location_city: string, 
         location_state: string, 
         location_country: string,
-        map: any) {
+        encodedMap: any) {
 
         this.id = id;
         this.name = name;
@@ -57,6 +57,6 @@ export class Activity {
         this.location_city = location_city;
         this.location_state = location_state;
         this.location_country = location_country;
-        this.map = map;
+        this.encodedMap = encodedMap;
     }
 }
