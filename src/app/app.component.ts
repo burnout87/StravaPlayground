@@ -4,7 +4,6 @@ import { WebSocketService } from './shared/web-socket.service';
 import { Subject } from 'rxjs';
 import { Athlete } from './shared/Athlete';
 import { Activity } from './shared/Activity';
-import * as L from 'leaflet';
 import * as P from 'polyline-encoded';
 import { MapComponent } from './map/map.component';
 
@@ -28,7 +27,8 @@ export class AppComponent {
   @ViewChild(MapComponent, {static: false})
   private mapComp: MapComponent;
   
-  constructor(private activatedRoute: ActivatedRoute, private wsService: WebSocketService) {
+  constructor(private activatedRoute: ActivatedRoute, 
+    private wsService: WebSocketService) {
     this.bc.addEventListener('message', (event) => {
       this.processMsgBC(event.data);
     });
@@ -166,7 +166,7 @@ export class AppComponent {
     this.mapComp.cleanMap();
     this.athleteActivities.forEach((activity:Activity) => {
       if(activity.encodedMap != null)
-        this.mapComp.checkPolylineVisible(activity.encodedMap, activity.start_latlng);
+        this.mapComp.checkActivityVisible(activity);
     });
   }
 

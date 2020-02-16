@@ -10,7 +10,6 @@ import { MapComponent } from './map/map.component';
 import { AuthorizationComponent } from './authorization/authorization.component';
 import { AppRoutingModule } from './app-routing.module';
 
-
 @NgModule({
   declarations: [
     AppComponent,

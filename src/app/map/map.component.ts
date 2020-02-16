@@ -3,7 +3,7 @@ import { Input } from '@angular/core';
 import * as L from 'leaflet';
 import { Activity } from '../shared/Activity';
 import { Subject } from 'rxjs';
-import * as P from 'polyline-encoded';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-map',
@@ -21,15 +21,15 @@ export class MapComponent implements OnInit {
   ngOnInit() {
     this.onChanges.subscribe((data:SimpleChanges)=>{
       this.cleanMap();
-      this.plotMarker(data.activityToPlot.currentValue.start_latlng);
-      this.plotPolyline(data.activityToPlot.currentValue.map.summary_polyline);
+      // this.plotMarker(data.activityToPlot.currentValue.start_latlng);
+      // this.plotPolyline(data.activityToPlot.currentValue.map.summary_polyline);
     });
   }
 
 
   public cleanMap() {
     for(var i in this.map._layers) {
-      if(this.map._layers[i]._path != undefined) {
+      if(this.map._layers[i] instanceof L.Polyline|| this.map._layers[i] instanceof L.Marker ) {
         try {
           this.map.removeLayer(this.map._layers[i]);
         }
@@ -68,9 +68,9 @@ export class MapComponent implements OnInit {
     var height = this.map.getBounds().getNorth() - this.map.getBounds().getSouth();
   }
 
-  public checkPolylineVisible(polylineCoords: any, startMarkerCoords: any) {
+  public checkActivityVisible(activity: Activity) {
     var pol:any = L.polyline(
-      polylineCoords,
+      activity.encodedMap,
       {
           color: 'blue',
           weight: 2,
@@ -79,30 +79,11 @@ export class MapComponent implements OnInit {
       });
     if (this.map.getBounds().intersects( pol.getBounds() )) {
       pol.addTo(this.map);
-      this.plotMarker(startMarkerCoords);
-    }
-  }
-
-  public plotMarker(marker: any) {
-    if(marker != null) {
-      var marker = L.marker(marker);
+      var marker = L.marker(activity.start_latlng);
+      //marker.options = activity;
       marker.addTo(this.map);
-      // this.map.panTo(marker._latlng, 15);
+      marker.bindPopup("<b>" + activity.name + "</b><br>" + moment(activity.start_date_local).format("dddd, MMMM Do YYYY, h:mm:ss a"));
     }
-  }
-
-  public plotPolyline(polylineCoords: any) {
-    if(polylineCoords != null) {
-      // var coordinates = P.decode(polyline);
-      L.polyline(
-        polylineCoords,
-        {
-            color: 'blue',
-            weight: 2,
-            opacity: .7,
-            lineJoin: 'round'
-        }).addTo(this.map);
-      }
   }
 
 }
