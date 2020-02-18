@@ -65,9 +65,10 @@ export class WebSocketService {
     return this.http.get(endpoint);
   }
 
-  public getAthleteActivitiesLastMonth(): Rx.Observable<any> {
+  public getAthleteActivitiesFrom(beginning: moment.Moment): Rx.Observable<any> {
     var nowEpoch = moment().unix();
-    var nowEpochLessAMonth = moment().subtract(2, 'months').unix();
+    // var nowEpochLessAMonth = moment().subtract(2, 'months').unix();
+    var nowEpochLessAMonth = beginning.unix();
     
     var endpoint: string = environment.getAthleteActivities + "?before=" + nowEpoch + "&after=" + nowEpochLessAMonth + "&page=" + 1 + "&per_page=" + 30;
     return this.http.get(endpoint);

@@ -6,6 +6,8 @@ import { Athlete } from './shared/Athlete';
 import { Activity } from './shared/Activity';
 import * as P from 'polyline-encoded';
 import { MapComponent } from './map/map.component';
+import * as moment from 'moment';
+import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +25,8 @@ export class AppComponent {
   private athleteActivities: Array<Activity> = new Array();
   private bc = new BroadcastChannel('tabsCommChannel');
   private activityToPlot:Activity;
+  private calendar: NgbDateStruct;
+  private lastDateSelected: moment.Moment;
 
   @ViewChild(MapComponent, {static: false})
   private mapComp: MapComponent;
@@ -137,25 +141,29 @@ export class AppComponent {
       });
   }
 
-  updateAthleteActivitiesList() {
-    this.wsService.getAthleteActivitiesLastMonth()
-      .subscribe((data) => {
-        this.athleteActivities.length = 0;
-        data.forEach((element: any)  => {
-          if(element.map.summary_polyline != null) {
-            var encodedMap: any = P.decode(element.map.summary_polyline);
-          }
-          this.athleteActivities.push(new Activity(
-            element.id, element.name, element.distance, element.moving_time,
-            element.elapsed_time, element.total_elevation_gain, element.type,
-            element.workout_type, element.start_date, element.start_date,
-            element.timezone, element.number, element.start_latlng, 
-            element.end_latlng, element.loation_city, element.locatio_state,
-            element.location_country,
-            encodedMap
-          ));
-        });
-    });
+  updateAthleteActivitiesList(beginning?: number) {
+    if(!beginning) {
+      // if not specified just look to months back
+      var nowEpochLessAMonth = moment().subtract(2, 'months');
+      this.wsService.getAthleteActivitiesFrom(nowEpochLessAMonth).subscribe((data) => {
+          this.athleteActivities.length = 0;
+          data.forEach((element: any)  => {
+            if(element.map.summary_polyline != null) {
+              var encodedMap: any = P.decode(element.map.summary_polyline);
+            }
+            this.athleteActivities.push(new Activity(
+              element.id, element.name, element.distance, element.moving_time,
+              element.elapsed_time, element.total_elevation_gain, element.type,
+              element.workout_type, element.start_date, element.start_date,
+              element.timezone, element.number, element.start_latlng, 
+              element.end_latlng, element.loation_city, element.locatio_state,
+              element.location_country,
+              encodedMap
+            ));
+          });
+      });
+    }
+
   }
 
   updateActivityToPlot(activity: Activity) {
@@ -163,6 +171,15 @@ export class AppComponent {
   }
 
   plotActivitiesAreaLastMonth() {
+    console.log(this.calendar);
+    if(this.calendar) {
+      var dateSelected = moment().year(this.calendar.year).month(this.calendar.month - 1).date(this.calendar.day);
+      if(this.lastDateSelected && (this.lastDateSelected.isBefore(dateSelected) || this.lastDateSelected.isAfter(dateSelected))) {
+        this.lastDateSelected = dateSelected;
+      }
+    }
+    if(this.athleteActivities.length == 0)
+      this.updateAthleteActivitiesList();
     this.mapComp.cleanMap();
     this.athleteActivities.forEach((activity:Activity) => {
       if(activity.encodedMap != null)
