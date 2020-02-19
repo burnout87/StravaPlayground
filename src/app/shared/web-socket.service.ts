@@ -69,8 +69,7 @@ export class WebSocketService {
     var nowEpoch = moment().unix();
     // var nowEpochLessAMonth = moment().subtract(2, 'months').unix();
     var nowEpochLessAMonth = beginning.unix();
-    
-    var endpoint: string = environment.getAthleteActivities + "?before=" + nowEpoch + "&after=" + nowEpochLessAMonth + "&page=" + 1 + "&per_page=" + 30;
+    var endpoint: string = environment.getAthleteActivities + "?before=" + nowEpoch + "&after=" + nowEpochLessAMonth + "&page=" + 1 + "&per_page=" + 200;
     return this.http.get(endpoint);
   }
 

@@ -50,8 +50,8 @@ export class MapComponent implements OnInit {
 
   private initMap(): void {
     this.map = L.map('map', {
-      center: [ 39.8282, -98.5795 ],
-      zoom: 13
+      center: [ 49.353756, 11.967361 ],
+      zoom: 5
     });
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -68,7 +68,12 @@ export class MapComponent implements OnInit {
     var height = this.map.getBounds().getNorth() - this.map.getBounds().getSouth();
   }
 
-  public checkActivityVisible(activity: Activity) {
+  public checkPlotVisible(plot: any) {
+    var pol:any = L.polyline(plot);
+    return this.map.getBounds().intersects( pol.getBounds() );
+  }
+
+  public plotActivity(activity: Activity) {
     var pol:any = L.polyline(
       activity.encodedMap,
       {
@@ -77,13 +82,11 @@ export class MapComponent implements OnInit {
           opacity: .7,
           lineJoin: 'round'
       });
-    if (this.map.getBounds().intersects( pol.getBounds() )) {
-      pol.addTo(this.map);
-      var marker = L.marker(activity.start_latlng);
-      //marker.options = activity;
-      marker.addTo(this.map);
-      marker.bindPopup("<b>" + activity.name + "</b><br>" + moment(activity.start_date_local).format("dddd, MMMM Do YYYY, h:mm:ss a"));
-    }
+    pol.addTo(this.map);
+    var marker = L.marker(activity.start_latlng);
+    //marker.options = activity;
+    marker.addTo(this.map);
+    marker.bindPopup("<b>" + activity.name + "</b><br>" + moment(activity.start_date_local).format("dddd, MMMM Do YYYY, h:mm:ss a"));
   }
 
 }

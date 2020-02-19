@@ -18,7 +18,8 @@ export class AppComponent {
 
   private windowHandleAuth;
   private stateTitle = "Authorize/authenticate!!!";
-  private state = "main";
+  private stateAuthorization = "main";
+  private retrievingActivities = false;
   private messages: Subject<any>;
   private authSent: boolean;
   private athleteData: Athlete = null;
@@ -42,7 +43,7 @@ export class AppComponent {
     this.activatedRoute.queryParams.subscribe(params => {
       if(params['code'] && params['scope']) {
         // we are on the authorizatin page
-        this.state = 'authorized';
+        this.stateAuthorization = 'authorized';
         const code = params['code'];
         const scope = params['scope'];
         const state = params['state'];
@@ -68,9 +69,9 @@ export class AppComponent {
   processMsgBC(message:any) {
     var msg = JSON.parse(message);
     this.stateTitle = msg.stateTitle;
-    if(this.state == "authorization" && msg.state == "authorized") {
+    if(this.stateAuthorization == "authorization" && msg.state == "authorized") {
       // user has authorized, and the requests now the access token
-      this.state = msg.state;
+      this.stateAuthorization = msg.state;
       if(msg.code != null && msg.state != null && msg.scope != null)
         this.getBearerToken(msg.code, msg.state, msg.scope);
     }
@@ -79,16 +80,16 @@ export class AppComponent {
   getAuthorizationState() {
     this.wsService.getAuthorizationState()
       .subscribe((data) => {
-        this.state = data.state;
-        if(this.state == "authorized")
+        this.stateAuthorization = data.state;
+        if(this.stateAuthorization == "authorized")
         {
           this.stateTitle = "Authorized!";
           // let's query athlete data
           this.getAthleteInfo();
-          this.updateAthleteActivitiesList();
-        } else if(this.state == "expired" ) {
+          // this.updateAthleteActivitiesList();
+        } else if(this.stateAuthorization == "expired" ) {
           this.stateTitle = "Expired!";
-        } else if(this.state == "non-authorized" ) {
+        } else if(this.stateAuthorization == "non-authorized" ) {
           this.stateTitle = "Non authorized";
           // require authorization
         }
@@ -99,7 +100,7 @@ export class AppComponent {
     this.wsService.authorize()
       .subscribe((data: string) => {
         this.windowHandleAuth = window.open(data, 'OAuth2 Login', "width=500, height=600, left=0, top=0");
-        this.state = "authorization";
+        this.stateAuthorization = "authorization";
       });
   }
 
@@ -107,7 +108,7 @@ export class AppComponent {
     this.wsService.refreshToken()
       .subscribe((data) => {
         if(data.message != "Bad Request")
-          this.state = "refreshing";
+          this.stateAuthorization = "refreshing";
       });
   }
 
@@ -141,50 +142,58 @@ export class AppComponent {
       });
   }
 
-  updateAthleteActivitiesList(beginning?: number) {
+  updateAthleteActivitiesList(beginning?: moment.Moment) {
+    // by default, just look two months back
     if(!beginning) {
-      // if not specified just look to months back
-      var nowEpochLessAMonth = moment().subtract(2, 'months');
-      this.wsService.getAthleteActivitiesFrom(nowEpochLessAMonth).subscribe((data) => {
+      beginning = moment().subtract(2, 'months');
+    }
+    this.retrievingActivities = true;
+    this.wsService.getAthleteActivitiesFrom(beginning).subscribe((data) => {
+        if(data.length > 0) {
           this.athleteActivities.length = 0;
+          this.mapComp.cleanMap();
           data.forEach((element: any)  => {
+            // decode the encoded map
             if(element.map.summary_polyline != null) {
               var encodedMap: any = P.decode(element.map.summary_polyline);
+              // if the map is available and is successfully encoded
+              if(this.mapComp.checkPlotVisible(encodedMap)) {
+                // create a new activity
+                var act : Activity = new Activity (
+                  element.id, element.name, element.distance, element.moving_time,
+                  element.elapsed_time, element.total_elevation_gain, element.type,
+                  element.workout_type, element.start_date, element.start_date,
+                  element.timezone, element.number, element.start_latlng, 
+                  element.end_latlng, element.loation_city, element.locatio_state,
+                  element.location_country,
+                  encodedMap
+                );
+                this.athleteActivities.push(act);
+                this.mapComp.plotActivity(act);
+              }
             }
-            this.athleteActivities.push(new Activity(
-              element.id, element.name, element.distance, element.moving_time,
-              element.elapsed_time, element.total_elevation_gain, element.type,
-              element.workout_type, element.start_date, element.start_date,
-              element.timezone, element.number, element.start_latlng, 
-              element.end_latlng, element.loation_city, element.locatio_state,
-              element.location_country,
-              encodedMap
-            ));
           });
+          this.retrievingActivities = false;
+        }
       });
     }
-
-  }
 
   updateActivityToPlot(activity: Activity) {
     this.activityToPlot = activity;
   }
 
-  plotActivitiesAreaLastMonth() {
-    console.log(this.calendar);
+  plotActivitiesAreaSinceTimeSelected() {
+
     if(this.calendar) {
       var dateSelected = moment().year(this.calendar.year).month(this.calendar.month - 1).date(this.calendar.day);
-      if(this.lastDateSelected && (this.lastDateSelected.isBefore(dateSelected) || this.lastDateSelected.isAfter(dateSelected))) {
-        this.lastDateSelected = dateSelected;
+      if(dateSelected.isBefore(moment())) {
+        if(!this.lastDateSelected && (this.lastDateSelected.isBefore(dateSelected) || this.lastDateSelected.isAfter(dateSelected)))
+          this.lastDateSelected = dateSelected;
+        this.updateAthleteActivitiesList(this.lastDateSelected);
       }
     }
-    if(this.athleteActivities.length == 0)
+    else
       this.updateAthleteActivitiesList();
-    this.mapComp.cleanMap();
-    this.athleteActivities.forEach((activity:Activity) => {
-      if(activity.encodedMap != null)
-        this.mapComp.checkActivityVisible(activity);
-    });
   }
 
 }
