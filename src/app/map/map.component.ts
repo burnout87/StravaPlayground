@@ -75,15 +75,31 @@ export class MapComponent implements OnInit {
 
   public plotActivity(activity: Activity) {
     var pol:any = L.polyline(
-      activity.encodedMap,
+      activity.decodedMap,
       {
           color: 'blue',
           weight: 2,
           opacity: .7,
           lineJoin: 'round'
       });
+    pol.on('mouseover', function() {
+      this.setStyle({
+        weight: 6
+      });
+    });
+    pol.on('mouseout', function() {
+      this.setStyle({
+        weight: 2
+      });
+    });
     pol.addTo(this.map);
     var marker = L.marker(activity.start_latlng);
+    marker.on('mouseover', function() {
+      pol.setStyle({ weight: 6});
+    });
+    marker.on('mouseout', function() {
+      pol.setStyle({ weight: 2});
+    });
     //marker.options = activity;
     marker.addTo(this.map);
     marker.bindPopup("<b>" + activity.name + "</b><br>" + moment(activity.start_date_local).format("dddd, MMMM Do YYYY, h:mm:ss a"));

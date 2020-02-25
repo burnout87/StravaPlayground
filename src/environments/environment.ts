@@ -9,6 +9,7 @@ export const environment = {
   requestTokenRefreshing: 'http://localhost:8080/refreshAccessToken',
   getAuthenticationInfo: 'http://localhost:8080/getAuthenticationInfo/',
   getAthleteActivities: 'http://localhost:8080/getActivities/',
+  getAthleteActivitiesArea: 'http://localhost:8080/getActivitiesArea/',
   getAuthorizationState: 'http://localhost:8080/getAuthorizationState/',
   getAthleteInfo: 'http://localhost:8080/getAthleteInfo/'
 };

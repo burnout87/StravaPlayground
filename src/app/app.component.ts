@@ -148,16 +148,15 @@ export class AppComponent {
       beginning = moment().subtract(2, 'months');
     }
     this.retrievingActivities = true;
-    this.wsService.getAthleteActivitiesFrom(beginning).subscribe((data) => {
+    this.wsService.getAthleteActivitiesAreaFrom(beginning).subscribe((data) => {
         if(data.length > 0) {
           this.athleteActivities.length = 0;
           this.mapComp.cleanMap();
           data.forEach((element: any)  => {
             // decode the encoded map
             if(element.map.summary_polyline != null) {
-              var encodedMap: any = P.decode(element.map.summary_polyline);
               // if the map is available and is successfully encoded
-              if(this.mapComp.checkPlotVisible(encodedMap)) {
+              if(this.mapComp.checkPlotVisible(element.map.summary_polyline_decoded)) {
                 // create a new activity
                 var act : Activity = new Activity (
                   element.id, element.name, element.distance, element.moving_time,
@@ -166,7 +165,7 @@ export class AppComponent {
                   element.timezone, element.number, element.start_latlng, 
                   element.end_latlng, element.loation_city, element.locatio_state,
                   element.location_country,
-                  encodedMap
+                  element.map.summary_polyline_decoded
                 );
                 this.athleteActivities.push(act);
                 this.mapComp.plotActivity(act);

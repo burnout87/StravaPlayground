@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import * as Rx from "rxjs";
 import { Observable, Subject } from 'rxjs';
 import * as io from 'socket.io-client';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Athlete } from './Athlete';
 import * as moment from 'moment';
@@ -67,10 +67,32 @@ export class WebSocketService {
 
   public getAthleteActivitiesFrom(beginning: moment.Moment): Rx.Observable<any> {
     var nowEpoch = moment().unix();
-    // var nowEpochLessAMonth = moment().subtract(2, 'months').unix();
     var nowEpochLessAMonth = beginning.unix();
     var endpoint: string = environment.getAthleteActivities + "?before=" + nowEpoch + "&after=" + nowEpochLessAMonth + "&page=" + 1 + "&per_page=" + 200;
     return this.http.get(endpoint);
+  }
+
+  public getAthleteActivitiesAreaFrom(beginning: moment.Moment): Rx.Observable<any> {
+    var nowEpoch = moment().unix();
+    var nowEpochLessAMonth = beginning.unix();
+    
+    var corn1 = {lat: '12', lng: '13'};
+    var corn2 = {lat: '14', lng: '14'};
+
+    var pointVec = [corn1, corn2];
+
+    var endpoint: string = environment.getAthleteActivitiesArea 
+                + "?before=" + nowEpoch 
+                + "&after=" + nowEpochLessAMonth 
+                + "&page=" + 1 
+                + "&per_page=" + 200;
+
+    const httpOptions = {
+        headers: new HttpHeaders({
+          'Content-Type':  'application/json'
+        })
+    };
+    return this.http.post(endpoint, pointVec, httpOptions);
   }
 
   public getAuthorizationState(): Rx.Observable<any> {
