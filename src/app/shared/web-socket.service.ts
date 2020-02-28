@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Athlete } from './Athlete';
 import * as moment from 'moment';
+import * as L from 'leaflet';
 
 @Injectable({
   providedIn: 'root'
@@ -72,13 +73,16 @@ export class WebSocketService {
     return this.http.get(endpoint);
   }
 
-  public getAthleteActivitiesAreaFrom(beginning: moment.Moment): Rx.Observable<any> {
+  public getAthleteActivitiesAreaFrom(beginning: moment.Moment, bounds: L.LatLngBounds): Rx.Observable<any> {
     var nowEpoch = moment().unix();
     var nowEpochLessAMonth = beginning.unix();
     
-    var corn1 = {lat: '12', lng: '13'};
-    var corn2 = {lat: '14', lng: '14'};
-
+    var corn1 = {lat: bounds.getNorth(), lng: bounds.getWest()};
+    var corn2 = {lat: bounds.getSouth(), lng: bounds.getEast()};
+    /**
+     * pointVec[0] is the NorthWest point
+     * pointVec[1] is the SouthEast point
+     */
     var pointVec = [corn1, corn2];
 
     var endpoint: string = environment.getAthleteActivitiesArea 

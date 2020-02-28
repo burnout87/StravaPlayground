@@ -144,19 +144,19 @@ export class AppComponent {
 
   updateAthleteActivitiesList(beginning?: moment.Moment) {
     // by default, just look two months back
-    if(!beginning) {
+    if(beginning == null) {
       beginning = moment().subtract(2, 'months');
     }
     this.retrievingActivities = true;
-    this.wsService.getAthleteActivitiesAreaFrom(beginning).subscribe((data) => {
+    this.wsService.getAthleteActivitiesAreaFrom(beginning, this.mapComp.getMapBounds()).subscribe((data) => {
         if(data.length > 0) {
           this.athleteActivities.length = 0;
           this.mapComp.cleanMap();
           data.forEach((element: any)  => {
             // decode the encoded map
-            if(element.map.summary_polyline != null) {
+             if(element.map.summary_polyline_decoded != null) {
               // if the map is available and is successfully encoded
-              if(this.mapComp.checkPlotVisible(element.map.summary_polyline_decoded)) {
+              // if(this.mapComp.checkPlotVisible(element.map.summary_polyline_decoded)) {
                 // create a new activity
                 var act : Activity = new Activity (
                   element.id, element.name, element.distance, element.moving_time,
@@ -170,7 +170,7 @@ export class AppComponent {
                 this.athleteActivities.push(act);
                 this.mapComp.plotActivity(act);
               }
-            }
+            // }
           });
           this.retrievingActivities = false;
         }
@@ -186,7 +186,7 @@ export class AppComponent {
     if(this.calendar) {
       var dateSelected = moment().year(this.calendar.year).month(this.calendar.month - 1).date(this.calendar.day);
       if(dateSelected.isBefore(moment())) {
-        if(!this.lastDateSelected && (this.lastDateSelected.isBefore(dateSelected) || this.lastDateSelected.isAfter(dateSelected)))
+        if(this.lastDateSelected == null || (this.lastDateSelected.isBefore(dateSelected) || this.lastDateSelected.isAfter(dateSelected)))
           this.lastDateSelected = dateSelected;
         this.updateAthleteActivitiesList(this.lastDateSelected);
       }

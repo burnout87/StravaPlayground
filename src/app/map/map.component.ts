@@ -64,8 +64,10 @@ export class MapComponent implements OnInit {
   }
 
   getMapBounds() {
-    var width = this.map.getBounds().getEast() - this.map.getBounds().getWest();
-    var height = this.map.getBounds().getNorth() - this.map.getBounds().getSouth();
+    // var width = this.map.getBounds().getEast() - this.map.getBounds().getWest();
+    // var height = this.map.getBounds().getNorth() - this.map.getBounds().getSouth();
+
+    return this.map.getBounds();
   }
 
   public checkPlotVisible(plot: any) {
@@ -102,7 +104,7 @@ export class MapComponent implements OnInit {
     });
     //marker.options = activity;
     marker.addTo(this.map);
-    marker.bindPopup("<b>" + activity.name + "</b><br>" + moment(activity.start_date_local).format("dddd, MMMM Do YYYY, h:mm:ss a"));
+    marker.bindPopup("<b><a href=\"https://www.strava.com/activities/" + activity.id + "\" target=\"_blank\">" + activity.name + "</a></b><br>" + moment(activity.start_date_local).format("dddd, MMMM Do YYYY, h:mm:ss a"));
   }
 
 }
