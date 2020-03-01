@@ -73,7 +73,7 @@ export class WebSocketService {
     return this.http.get(endpoint);
   }
 
-  public getAthleteActivitiesAreaFrom(beginning: moment.Moment, bounds: L.LatLngBounds): Rx.Observable<any> {
+  public getAthleteActivitiesAreaFrom(beginning: moment.Moment, end: moment.Moment, bounds: L.LatLngBounds): Rx.Observable<any> {
     var nowEpoch = moment().unix();
     var nowEpochLessAMonth = beginning.unix();
     

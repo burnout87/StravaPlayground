@@ -26,7 +26,8 @@ export class AppComponent {
   private athleteActivities: Array<Activity> = new Array();
   private bc = new BroadcastChannel('tabsCommChannel');
   private activityToPlot:Activity;
-  private calendar: NgbDateStruct;
+  private calendarStart: NgbDateStruct;
+  private calendarEnd: NgbDateStruct;
   private lastDateSelected: moment.Moment;
 
   @ViewChild(MapComponent, {static: false})
@@ -142,39 +143,48 @@ export class AppComponent {
       });
   }
 
-  updateAthleteActivitiesList(beginning?: moment.Moment) {
+  updateAthleteActivitiesList(beginning?: moment.Moment, end?: moment.Moment ) {
     // by default, just look two months back
     if(beginning == null) {
       beginning = moment().subtract(2, 'months');
     }
+    if(end == null) {
+      end = moment();
+    }
     this.retrievingActivities = true;
-    this.wsService.getAthleteActivitiesAreaFrom(beginning, this.mapComp.getMapBounds()).subscribe((data) => {
-        if(data.length > 0) {
-          this.athleteActivities.length = 0;
-          this.mapComp.cleanMap();
-          data.forEach((element: any)  => {
-            // decode the encoded map
-             if(element.map.summary_polyline_decoded != null) {
-              // if the map is available and is successfully encoded
-              // if(this.mapComp.checkPlotVisible(element.map.summary_polyline_decoded)) {
-                // create a new activity
-                var act : Activity = new Activity (
-                  element.id, element.name, element.distance, element.moving_time,
-                  element.elapsed_time, element.total_elevation_gain, element.type,
-                  element.workout_type, element.start_date, element.start_date,
-                  element.timezone, element.number, element.start_latlng, 
-                  element.end_latlng, element.loation_city, element.locatio_state,
-                  element.location_country,
-                  element.map.summary_polyline_decoded
-                );
-                this.athleteActivities.push(act);
-                this.mapComp.plotActivity(act);
-              }
-            // }
-          });
-          this.retrievingActivities = false;
-        }
-      });
+    try {
+      this.wsService.getAthleteActivitiesAreaFrom(beginning, end, this.mapComp.getMapBounds()).subscribe((data) => {
+          if(data.length > 0) {
+            this.athleteActivities.length = 0;
+            this.mapComp.cleanMap();
+            data.forEach((element: any)  => {
+              // decode the encoded map
+               if(element.map.summary_polyline_decoded != null) {
+                // if the map is available and is successfully encoded
+                // if(this.mapComp.checkPlotVisible(element.map.summary_polyline_decoded)) {
+                  // create a new activity
+                  var act : Activity = new Activity (
+                    element.id, element.name, element.distance, element.moving_time,
+                    element.elapsed_time, element.total_elevation_gain, element.type,
+                    element.workout_type, element.start_date, element.start_date,
+                    element.timezone, element.number, element.start_latlng, 
+                    element.end_latlng, element.loation_city, element.locatio_state,
+                    element.location_country,
+                    element.map.summary_polyline_decoded
+                  );
+                  this.athleteActivities.push(act);
+                  this.mapComp.plotActivity(act);
+                }
+              // }
+            });
+          }
+          
+        });
+    } catch {
+
+    } finally {
+      this.retrievingActivities = false;
+    }
     }
 
   updateActivityToPlot(activity: Activity) {
@@ -182,15 +192,17 @@ export class AppComponent {
   }
 
   plotActivitiesAreaSinceTimeSelected() {
-
-    if(this.calendar) {
-      var dateSelected = moment().year(this.calendar.year).month(this.calendar.month - 1).date(this.calendar.day);
-      if(dateSelected.isBefore(moment())) {
-        if(this.lastDateSelected == null || (this.lastDateSelected.isBefore(dateSelected) || this.lastDateSelected.isAfter(dateSelected)))
-          this.lastDateSelected = dateSelected;
-        this.updateAthleteActivitiesList(this.lastDateSelected);
-      }
-    }
+    if(this.calendarEnd)
+      var dateEndSelected = moment().year(this.calendarEnd.year).month(this.calendarEnd.month - 1).date(this.calendarEnd.day);
+    if(this.calendarStart)
+      var dateBeginSelected = moment().year(this.calendarStart.year).month(this.calendarStart.month - 1).date(this.calendarStart.day);
+    if(dateBeginSelected && dateBeginSelected.isBefore(moment()) && dateEndSelected && dateEndSelected.isBefore(moment())) {
+        // if(this.lastDateSelected == null || (this.lastDateSelected.isBefore(dateBeginSelected) || this.lastDateSelected.isAfter(dateBeginSelected)))
+        //   this.lastDateSelected = dateBeginSelected;
+        // this.updateAthleteActivitiesList(this.lastDateSelected);
+        this.updateAthleteActivitiesList(dateBeginSelected, dateEndSelected);
+    } else if(dateBeginSelected && dateBeginSelected.isBefore(moment()))
+      this.updateAthleteActivitiesList(dateBeginSelected);
     else
       this.updateAthleteActivitiesList();
   }
