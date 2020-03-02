@@ -143,14 +143,9 @@ export class AppComponent {
       });
   }
 
-  updateAthleteActivitiesList(beginning?: moment.Moment, end?: moment.Moment ) {
+  updateAthleteActivitiesList(beginning: moment.Moment, end: moment.Moment ) {
     // by default, just look two months back
-    if(beginning == null) {
-      beginning = moment().subtract(2, 'months');
-    }
-    if(end == null) {
-      end = moment();
-    }
+    
     this.retrievingActivities = true;
     try {
       this.wsService.getAthleteActivitiesAreaFrom(beginning, end, this.mapComp.getMapBounds()).subscribe((data) => {
@@ -180,31 +175,34 @@ export class AppComponent {
           }
           
         });
-    } catch {
-
     } finally {
       this.retrievingActivities = false;
     }
-    }
+  }
 
   updateActivityToPlot(activity: Activity) {
     this.activityToPlot = activity;
   }
 
   plotActivitiesAreaSinceTimeSelected() {
-    if(this.calendarEnd)
+    if(this.calendarEnd) {
       var dateEndSelected = moment().year(this.calendarEnd.year).month(this.calendarEnd.month - 1).date(this.calendarEnd.day);
-    if(this.calendarStart)
-      var dateBeginSelected = moment().year(this.calendarStart.year).month(this.calendarStart.month - 1).date(this.calendarStart.day);
-    if(dateBeginSelected && dateBeginSelected.isBefore(moment()) && dateEndSelected && dateEndSelected.isBefore(moment())) {
-        // if(this.lastDateSelected == null || (this.lastDateSelected.isBefore(dateBeginSelected) || this.lastDateSelected.isAfter(dateBeginSelected)))
-        //   this.lastDateSelected = dateBeginSelected;
-        // this.updateAthleteActivitiesList(this.lastDateSelected);
-        this.updateAthleteActivitiesList(dateBeginSelected, dateEndSelected);
-    } else if(dateBeginSelected && dateBeginSelected.isBefore(moment()))
-      this.updateAthleteActivitiesList(dateBeginSelected);
+      if(dateEndSelected.isAfter(moment()))
+        dateEndSelected = moment();
+    }
     else
-      this.updateAthleteActivitiesList();
+      var dateEndSelected = moment();
+    if(this.calendarStart) {
+      var dateBeginSelected = moment().year(this.calendarStart.year).month(this.calendarStart.month - 1).date(this.calendarStart.day);
+      if(dateBeginSelected.isAfter(moment()))
+        dateBeginSelected = moment().subtract(2, 'months');
+    }
+    else
+      var dateBeginSelected = moment().subtract(2, 'months');
+    if(dateBeginSelected.isBefore(dateEndSelected))
+      this.updateAthleteActivitiesList(dateBeginSelected, dateEndSelected);
+    else
+      alert("Dates are not valid"); 
   }
 
 }

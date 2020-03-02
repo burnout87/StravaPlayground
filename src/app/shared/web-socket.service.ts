@@ -74,8 +74,8 @@ export class WebSocketService {
   }
 
   public getAthleteActivitiesAreaFrom(beginning: moment.Moment, end: moment.Moment, bounds: L.LatLngBounds): Rx.Observable<any> {
-    var nowEpoch = moment().unix();
-    var nowEpochLessAMonth = beginning.unix();
+    var beginSecs = beginning.unix();
+    var endSecs = end.unix();
     
     var corn1 = {lat: bounds.getNorth(), lng: bounds.getWest()};
     var corn2 = {lat: bounds.getSouth(), lng: bounds.getEast()};
@@ -86,8 +86,8 @@ export class WebSocketService {
     var pointVec = [corn1, corn2];
 
     var endpoint: string = environment.getAthleteActivitiesArea 
-                + "?before=" + nowEpoch 
-                + "&after=" + nowEpochLessAMonth 
+                + "?before=" +  endSecs
+                + "&after=" + beginSecs 
                 + "&page=" + 1 
                 + "&per_page=" + 200;
 

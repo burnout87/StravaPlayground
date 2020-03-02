@@ -94,6 +94,7 @@ export class MapComponent implements OnInit {
         weight: 2
       });
     });
+    pol.bindPopup("<b><a href=\"https://www.strava.com/activities/" + activity.id + "\" target=\"_blank\">" + activity.name + "</a></b><br>" + moment(activity.start_date_local).format("dddd, MMMM Do YYYY, h:mm:ss a"));
     pol.addTo(this.map);
     var marker = L.marker(activity.start_latlng);
     marker.on('mouseover', function() {
