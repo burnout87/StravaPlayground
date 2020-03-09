@@ -1,14 +1,24 @@
 import { Moment } from 'moment';
 import * as moment from 'moment';
 
+export enum Type {
+    Run,
+    Ride,
+    VirtualRide,
+    AlpineSki
+}
+
 export class Activity {
+
+    
+
     id: number;
     name: string;
     distance: number;
     moving_time: number;
     elapsed_time: number;
     total_elevation_gain: number;
-    type: string;
+    type: Type;
     workout_type: string;
     start_date: Moment;
     start_date_local: Moment;
@@ -28,7 +38,7 @@ export class Activity {
         moving_time: number, 
         elapsed_time: number, 
         total_elevation_gain: number, 
-        type: string, 
+        type: Type, 
         workout_type: string, 
         start_date: string, 
         start_date_local: string, 
