@@ -16,21 +16,22 @@ import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 })
 export class AppComponent {
 
-  private windowHandleAuth;
+  public retrievingActivities = false;
+  public calendarStart: NgbDateStruct;
+  public calendarEnd: NgbDateStruct;
+  public activityToPlot:Activity;
+  
   private stateTitle = "Authorize/authenticate!!!";
   private stateAuthorization = "main";
-  private retrievingActivities = false;
+  private windowHandleAuth;
   private messages: Subject<any>;
   private authSent: boolean;
   private athleteData: Athlete = null;
   private athleteActivities: Array<Activity> = new Array();
   private bc = new BroadcastChannel('tabsCommChannel');
-  private activityToPlot:Activity;
-  private calendarStart: NgbDateStruct;
-  private calendarEnd: NgbDateStruct;
   private lastDateSelected: moment.Moment;
 
-  @ViewChild(MapComponent, {static: false})
+  @ViewChild(MapComponent)
   private mapComp: MapComponent;
   
   constructor(private activatedRoute: ActivatedRoute, 
@@ -38,6 +39,18 @@ export class AppComponent {
     this.bc.addEventListener('message', (event) => {
       this.processMsgBC(event.data);
     });
+   }
+
+   get stateTitleValue() {
+     return this.stateTitle;
+   }
+
+   get stateAuthorizationValue() {
+     return this.stateAuthorization;
+   }
+
+   get athleteDataValue() {
+     return this.athleteData;
    }
 
   ngOnInit() {
