@@ -9,7 +9,8 @@ export const environment = {
   requestTokenRefreshing: 'http://localhost:8080/refreshAccessToken',
   getAuthenticationInfo: 'http://localhost:8080/getAuthenticationInfo/',
   getAthleteActivities: 'http://localhost:8080/getActivities/',
-  getAthleteActivitiesArea: 'http://localhost:8080/getActivitiesArea/',
+  getAthleteActivitiesInclusionArea: 'http://localhost:8080/getActivitiesInclusionArea/',
+  getAthleteActivitiesIntersectionArea: 'http://localhost:8080/getActivitiesIntersectionArea/',
   getAuthorizationState: 'http://localhost:8080/getAuthorizationState/',
   getAthleteInfo: 'http://localhost:8080/getAthleteInfo/'
 };
@@ -22,3 +23,4 @@ export const environment = {
  * on performance if an error is thrown.
  */
 // import 'zone.js/dist/zone-error';  // Included with Angular CLI.
+

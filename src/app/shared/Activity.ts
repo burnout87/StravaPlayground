@@ -2,15 +2,14 @@ import { Moment } from 'moment';
 import * as moment from 'moment';
 
 export enum Type {
-    Run,
-    Ride,
-    VirtualRide,
-    AlpineSki
+    None = 0,
+    Run = 1,
+    Ride = 2,
+    VirtualRide = 3,
+    AlpineSki = 4
 }
 
 export class Activity {
-
-    
 
     id: number;
     name: string;

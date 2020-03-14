@@ -1,13 +1,20 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, Pipe, PipeTransform } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WebSocketService } from './shared/web-socket.service';
 import { Subject } from 'rxjs';
 import { Athlete } from './shared/Athlete';
-import { Activity } from './shared/Activity';
+import { Activity, Type } from './shared/Activity';
 import * as P from 'polyline-encoded';
 import { MapComponent } from './map/map.component';
 import * as moment from 'moment';
 import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+
+@Pipe({name: 'enumToArray'})
+export class EnumToArrayPipe implements PipeTransform {
+  transform(value) : Object {
+     return Object.keys(value).filter(e => !isNaN(+e)).map(o => { return {index: +o, name: value[o], value: value[o]}});
+  }
+}
 
 @Component({
   selector: 'app-root',
@@ -30,12 +37,24 @@ export class AppComponent {
   private athleteActivities: Array<Activity> = new Array();
   private bc = new BroadcastChannel('tabsCommChannel');
   private lastDateSelected: moment.Moment;
+  private types = Type;
+  private keyTypes;
 
   @ViewChild(MapComponent)
   private mapComp: MapComponent;
   
+
+
   constructor(private activatedRoute: ActivatedRoute, 
     private wsService: WebSocketService) {
+    this.keyTypes = Object.keys(this.types)
+      .filter(e => !isNaN(+e))
+      .map(o => { 
+        if(this.types[o] == 'None')
+          return {index: +o, name: this.types[o], value: ''}
+        else
+          return {index: +o, name: this.types[o], value: this.types[o]}
+      });
     this.bc.addEventListener('message', (event) => {
       this.processMsgBC(event.data);
     });
@@ -161,7 +180,7 @@ export class AppComponent {
     
     this.retrievingActivities = true;
     try {
-      this.wsService.getAthleteActivitiesAreaFrom(beginning, end, this.mapComp.getMapBounds()).subscribe((data) => {
+      this.wsService.getAthleteActivitiesIntersectionArea(beginning, end, this.mapComp.getMapBounds()).subscribe((data) => {
           if(data.length > 0) {
             this.athleteActivities.length = 0;
             this.mapComp.cleanMap();
