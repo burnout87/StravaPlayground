@@ -53,9 +53,11 @@
   </form>
 </div>
 
-<select>
-  <option *ngFor="let key of keyTypes" value=key>{{key.value}}</option>
+<select *ngIf="stateAuthorizationValue == 'authorized'" [(ngModel)]="activityTypeSelected" (change)="selectChangeHandler($event)">
+  <option *ngFor="let key of keyTypes" value={{key.name}}>{{key.value}}</option>
 </select>
+
+<label>Selected type:{{activityTypeSelected}}</label>
 
 <div class="card-container" *ngIf="stateAuthorizationValue == 'authorized'">
   <button class="card" (click)="plotActivitiesAreaSinceTimeSelected()" [disabled]="retrievingActivities">

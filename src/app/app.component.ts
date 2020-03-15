@@ -27,6 +27,7 @@ export class AppComponent {
   public calendarStart: NgbDateStruct;
   public calendarEnd: NgbDateStruct;
   public activityToPlot:Activity;
+  public activityTypeSelected:any;
   
   private stateTitle = "Authorize/authenticate!!!";
   private stateAuthorization = "main";
@@ -97,6 +98,11 @@ export class AppComponent {
         this.getAuthorizationState();
       }
     });
+  }
+
+  selectChangeHandler(event : any) {
+    // this.activityTypeSelected = event.target.value;
+    console.log(this.activityTypeSelected);
   }
 
   processMsgBC(message:any) {
