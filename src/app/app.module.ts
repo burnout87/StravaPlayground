@@ -5,7 +5,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent, EnumToArrayPipe } from './app.component';
-import { WebSocketService } from './shared/web-socket.service';
+import { ConnectivityService } from './shared/connectivity.service';
 import { AthleteDataComponent } from './athlete-data/athlete-data.component';
 import { ListActivityComponent } from './list-activity/list-activity.component';
 import { MapComponent } from './map/map.component';
@@ -26,7 +26,7 @@ import { AppRoutingModule } from './app-routing.module';
     MapComponent,
     EnumToArrayPipe
   ],
-  providers: [WebSocketService],
+  providers: [ConnectivityService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

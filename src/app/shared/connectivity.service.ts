@@ -4,14 +4,13 @@ import { Observable, Subject } from 'rxjs';
 import * as io from 'socket.io-client';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Athlete } from './Athlete';
 import * as moment from 'moment';
 import * as L from 'leaflet';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WebSocketService {
+export class ConnectivityService {
 
   // Our socket connection
   private socket: SocketIOClient.Socket;
@@ -99,7 +98,12 @@ export class WebSocketService {
     return this.http.post(endpoint, pointVec, httpOptions);
   }
 
-  public getAthleteActivitiesIntersectionArea(beginning: moment.Moment, end: moment.Moment, bounds: L.LatLngBounds): Rx.Observable<any> {
+  public getAthleteActivitiesIntersectionArea(
+    beginning: moment.Moment, 
+    end: moment.Moment, 
+    bounds: L.LatLngBounds,
+    type: string,
+    percentage: Number): Rx.Observable<any> {
     var beginSecs = beginning.unix();
     var endSecs = end.unix();
     
@@ -116,7 +120,8 @@ export class WebSocketService {
                 + "&after=" + beginSecs 
                 + "&page=" + 1 
                 + "&per_page=" + 200
-                + "&percentage=" + 0.7;
+                + "&percentage=" + percentage
+                + "&type=" + type;
 
     const httpOptions = {
         headers: new HttpHeaders({

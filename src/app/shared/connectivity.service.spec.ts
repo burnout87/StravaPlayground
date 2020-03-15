@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WebSocketService } from './web-socket.service';
+import { WebSocketService } from './connectivity.service';
 
 describe('WebSocketService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));

@@ -1,6 +1,6 @@
 import { Component, ViewChild, Pipe, PipeTransform } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { WebSocketService } from './shared/web-socket.service';
+import { ConnectivityService } from './shared/connectivity.service';
 import { Subject } from 'rxjs';
 import { Athlete } from './shared/Athlete';
 import { Activity, Type } from './shared/Activity';
@@ -28,6 +28,8 @@ export class AppComponent {
   public calendarEnd: NgbDateStruct;
   public activityToPlot:Activity;
   public activityTypeSelected:any;
+  public percentageSelected: any = 70;
+  public percentagesList: number[] = [10, 20, 30, 40, 50 , 60, 70, 80, 90, 100];
   
   private stateTitle = "Authorize/authenticate!!!";
   private stateAuthorization = "main";
@@ -47,15 +49,16 @@ export class AppComponent {
 
 
   constructor(private activatedRoute: ActivatedRoute, 
-    private wsService: WebSocketService) {
+    private wsService: ConnectivityService) {
     this.keyTypes = Object.keys(this.types)
       .filter(e => !isNaN(+e))
       .map(o => { 
         if(this.types[o] == 'None')
-          return {index: +o, name: this.types[o], value: ''}
+          return {index: +o, name: this.types[o], value: '', text: 'None'}
         else
-          return {index: +o, name: this.types[o], value: this.types[o]}
+          return {index: +o, name: this.types[o], value: this.types[o], text: this.types[o]}
       });
+      this.activityTypeSelected = this.keyTypes[0].text;
     this.bc.addEventListener('message', (event) => {
       this.processMsgBC(event.data);
     });
@@ -100,12 +103,7 @@ export class AppComponent {
     });
   }
 
-  selectChangeHandler(event : any) {
-    // this.activityTypeSelected = event.target.value;
-    console.log(this.activityTypeSelected);
-  }
-
-  processMsgBC(message:any) {
+  processMsgBC(message: any) {
     var msg = JSON.parse(message);
     this.stateTitle = msg.stateTitle;
     if(this.stateAuthorization == "authorization" && msg.state == "authorized") {
@@ -181,40 +179,31 @@ export class AppComponent {
       });
   }
 
-  updateAthleteActivitiesList(beginning: moment.Moment, end: moment.Moment ) {
+  updateAthleteActivitiesList(data: any) {
     // by default, just look two months back
-    
-    this.retrievingActivities = true;
-    try {
-      this.wsService.getAthleteActivitiesIntersectionArea(beginning, end, this.mapComp.getMapBounds()).subscribe((data) => {
-          if(data.length > 0) {
-            this.athleteActivities.length = 0;
-            this.mapComp.cleanMap();
-            data.forEach((element: any)  => {
-              // decode the encoded map
-               if(element.map.summary_polyline_decoded != null) {
-                // if the map is available and is successfully encoded
-                // if(this.mapComp.checkPlotVisible(element.map.summary_polyline_decoded)) {
-                  // create a new activity
-                  var act : Activity = new Activity (
-                    element.id, element.name, element.distance, element.moving_time,
-                    element.elapsed_time, element.total_elevation_gain, element.type,
-                    element.workout_type, element.start_date, element.start_date,
-                    element.timezone, element.number, element.start_latlng, 
-                    element.end_latlng, element.loation_city, element.locatio_state,
-                    element.location_country,
-                    element.map.summary_polyline_decoded
-                  );
-                  this.athleteActivities.push(act);
-                  this.mapComp.plotActivity(act);
-                }
-              // }
-            });
+    if(data.length > 0) {
+      this.athleteActivities.length = 0;
+      this.mapComp.cleanMap();
+      data.forEach((element: any)  => {
+        // decode the encoded map
+          if(element.map.summary_polyline_decoded != null) {
+          // if the map is available and is successfully encoded
+          // if(this.mapComp.checkPlotVisible(element.map.summary_polyline_decoded)) {
+            // create a new activity
+            var act : Activity = new Activity (
+              element.id, element.name, element.distance, element.moving_time,
+              element.elapsed_time, element.total_elevation_gain, element.type,
+              element.workout_type, element.start_date, element.start_date,
+              element.timezone, element.number, element.start_latlng, 
+              element.end_latlng, element.loation_city, element.locatio_state,
+              element.location_country,
+              element.map.summary_polyline_decoded
+            );
+            this.athleteActivities.push(act);
+            this.mapComp.plotActivity(act);
           }
-          
-        });
-    } finally {
-      this.retrievingActivities = false;
+        // }
+      });
     }
   }
 
@@ -237,8 +226,20 @@ export class AppComponent {
     }
     else
       var dateBeginSelected = moment().subtract(2, 'months');
-    if(dateBeginSelected.isBefore(dateEndSelected))
-      this.updateAthleteActivitiesList(dateBeginSelected, dateEndSelected);
+    if(dateBeginSelected.isBefore(dateEndSelected)) {
+      this.retrievingActivities = true;
+      try {
+        this.wsService.getAthleteActivitiesIntersectionArea(
+          dateBeginSelected, dateEndSelected, 
+          this.mapComp.getMapBounds(),
+          this.activityTypeSelected, this.percentageSelected / 100).subscribe((data: any) => {
+            this.updateAthleteActivitiesList(data);
+          });
+        } 
+        finally {
+          this.retrievingActivities = false;
+        }
+    }
     else
       alert("Dates are not valid"); 
   }
