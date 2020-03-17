@@ -10,6 +10,8 @@ import { AthleteDataComponent } from './athlete-data/athlete-data.component';
 import { ListActivityComponent } from './list-activity/list-activity.component';
 import { MapComponent } from './map/map.component';
 import { AppRoutingModule } from './app-routing.module';
+import { LoaderComponent } from './loader/loader.component';
+import { LoaderService } from './loader.service';
 
 @NgModule({
   imports: [
@@ -19,14 +21,18 @@ import { AppRoutingModule } from './app-routing.module';
     FormsModule,
     NgbModule
   ],
+  exports: [
+    LoaderComponent
+  ],
   declarations: [
     AppComponent,
     AthleteDataComponent,
     ListActivityComponent,
     MapComponent,
-    EnumToArrayPipe
+    EnumToArrayPipe,
+    LoaderComponent
   ],
-  providers: [ConnectivityService],
+  providers: [LoaderService, ConnectivityService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

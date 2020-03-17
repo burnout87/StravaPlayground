@@ -1,6 +1,7 @@
 import { Component, ViewChild, Pipe, PipeTransform } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ConnectivityService } from './shared/connectivity.service';
+import { LoaderService } from './loader.service'
 import { Subject } from 'rxjs';
 import { Athlete } from './shared/Athlete';
 import { Activity, Type } from './shared/Activity';
@@ -30,7 +31,8 @@ export class AppComponent {
   public activityTypeSelected:any;
   public percentageSelected: any = 70;
   public percentagesList: number[] = [10, 20, 30, 40, 50 , 60, 70, 80, 90, 100];
-  
+  public scope;
+
   private stateTitle = "Authorize/authenticate!!!";
   private stateAuthorization = "main";
   private windowHandleAuth;
@@ -49,7 +51,8 @@ export class AppComponent {
 
 
   constructor(private activatedRoute: ActivatedRoute, 
-    private wsService: ConnectivityService) {
+    private wsService: ConnectivityService,
+    private loaderService: LoaderService) {
     this.keyTypes = Object.keys(this.types)
       .filter(e => !isNaN(+e))
       .map(o => { 
@@ -212,23 +215,27 @@ export class AppComponent {
   }
 
   plotActivitiesAreaSinceTimeSelected() {
+    
+    
     if(this.calendarEnd) {
       var dateEndSelected = moment().year(this.calendarEnd.year).month(this.calendarEnd.month - 1).date(this.calendarEnd.day);
       if(dateEndSelected.isAfter(moment()))
-        dateEndSelected = moment();
+      dateEndSelected = moment();
     }
     else
-      var dateEndSelected = moment();
+    var dateEndSelected = moment();
     if(this.calendarStart) {
       var dateBeginSelected = moment().year(this.calendarStart.year).month(this.calendarStart.month - 1).date(this.calendarStart.day);
       if(dateBeginSelected.isAfter(moment()))
         dateBeginSelected = moment().subtract(2, 'months');
-    }
+      }
     else
-      var dateBeginSelected = moment().subtract(2, 'months');
+    var dateBeginSelected = moment().subtract(2, 'months');
     if(dateBeginSelected.isBefore(dateEndSelected)) {
-      this.retrievingActivities = true;
       try {
+        this.retrievingActivities = true;
+        // show loader
+        this.showLoader();
         this.wsService.getAthleteActivitiesIntersectionArea(
           dateBeginSelected, dateEndSelected, 
           this.mapComp.getMapBounds(),
@@ -238,10 +245,18 @@ export class AppComponent {
         } 
         finally {
           this.retrievingActivities = false;
+          this.hideLoader();
         }
     }
     else
       alert("Dates are not valid"); 
+  }
+
+  private showLoader(): void {
+    this.loaderService.show();
+  }
+  private hideLoader(): void {
+    this.loaderService.hide();
   }
 
 }
