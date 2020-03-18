@@ -1,8 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppComponent, EnumToArrayPipe } from './app.component';
 import { ConnectivityService } from './shared/connectivity.service';
@@ -19,7 +23,8 @@ import { LoaderService } from './loader.service';
     HttpClientModule,
     AppRoutingModule,
     FormsModule,
-    NgbModule
+    NgbModule,
+    MatProgressBarModule
   ],
   exports: [
     LoaderComponent
@@ -32,7 +37,9 @@ import { LoaderService } from './loader.service';
     EnumToArrayPipe,
     LoaderComponent
   ],
-  providers: [LoaderService, ConnectivityService],
+  providers: [
+    LoaderService, 
+    ConnectivityService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
