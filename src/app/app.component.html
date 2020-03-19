@@ -30,14 +30,14 @@
   <app-map [activityToPlot]="activityToPlot"></app-map>
 
   <div class="form-inline">
-    <mat-form-field style="margin: 10px;"> 
+    <mat-form-field style="margin: 10px;" appearance="fill"> 
       <mat-label>Beginning date</mat-label>
       <input matInput [matDatepicker]="pickerBegin" [(ngModel)]="calendarBegin">
       <mat-datepicker-toggle  matSuffix [for]="pickerBegin"></mat-datepicker-toggle>
       <mat-datepicker #pickerBegin></mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field style="margin: 10px;">
+    <mat-form-field style="margin: 10px;" appearance="fill">
       <mat-label>End date</mat-label>
       <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="calendarEnd">
       <mat-datepicker-toggle  matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
