@@ -1,7 +1,6 @@
 import { Component, ViewChild, Pipe, PipeTransform } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ConnectivityService } from './shared/connectivity.service';
-import { LoaderService } from './loader.service'
 import { Subject } from 'rxjs';
 import { Athlete } from './shared/Athlete';
 import { Activity, Type } from './shared/Activity';
@@ -9,6 +8,8 @@ import * as P from 'polyline-encoded';
 import { MapComponent } from './map/map.component';
 import * as moment from 'moment';
 import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
+import { AppDateAdapter, APP_DATE_FORMATS } from './material-module/format-datepicker';
 
 @Pipe({name: 'enumToArray'})
 export class EnumToArrayPipe implements PipeTransform {
@@ -20,13 +21,19 @@ export class EnumToArrayPipe implements PipeTransform {
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  providers: [
+    { provide: DateAdapter, useClass: AppDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS }
+  ]
 })
 export class AppComponent {
 
   public retrievingActivities = false;
-  public calendarStart: NgbDateStruct;
-  public calendarEnd: NgbDateStruct;
+  // public calendarStart: NgbDateStruct;
+  // public calendarEnd: NgbDateStruct;
+  public calendarBegin: Date;
+  public calendarEnd: Date;
   public activityToPlot:Activity;
   public activityTypeSelected:any;
   public percentageSelected: any = 70;
@@ -51,8 +58,7 @@ export class AppComponent {
 
 
   constructor(private activatedRoute: ActivatedRoute, 
-    private wsService: ConnectivityService,
-    private loaderService: LoaderService) {
+    private wsService: ConnectivityService) {
     this.keyTypes = Object.keys(this.types)
       .filter(e => !isNaN(+e))
       .map(o => { 
@@ -218,45 +224,44 @@ export class AppComponent {
     
     
     if(this.calendarEnd) {
-      var dateEndSelected = moment().year(this.calendarEnd.year).month(this.calendarEnd.month - 1).date(this.calendarEnd.day);
+      var dateEndSelected = moment()
+        .year(this.calendarEnd.getFullYear())
+        .month(this.calendarEnd.getMonth())
+        .date(this.calendarEnd.getDate());
       if(dateEndSelected.isAfter(moment()))
-      dateEndSelected = moment();
+        dateEndSelected = moment();
     }
     else
-    var dateEndSelected = moment();
-    if(this.calendarStart) {
-      var dateBeginSelected = moment().year(this.calendarStart.year).month(this.calendarStart.month - 1).date(this.calendarStart.day);
+      var dateEndSelected = moment();
+    if(this.calendarBegin) {
+      var dateBeginSelected = moment()
+        .year(this.calendarBegin.getFullYear())
+        .month(this.calendarBegin.getMonth())
+        .date(this.calendarBegin.getDate());
       if(dateBeginSelected.isAfter(moment()))
         dateBeginSelected = moment().subtract(2, 'months');
       }
     else
-    var dateBeginSelected = moment().subtract(2, 'months');
+      var dateBeginSelected = moment().subtract(2, 'months');
     if(dateBeginSelected.isBefore(dateEndSelected)) {
       try {
         this.retrievingActivities = true;
         // show loader
-        this.showLoader();
         this.wsService.getAthleteActivitiesIntersectionArea(
           dateBeginSelected, dateEndSelected, 
           this.mapComp.getMapBounds(),
           this.activityTypeSelected, this.percentageSelected / 100).subscribe((data: any) => {
             this.updateAthleteActivitiesList(data);
+            this.retrievingActivities = false;
           });
         } 
         finally {
-          this.retrievingActivities = false;
-          this.hideLoader();
+          
         }
     }
     else
       alert("Dates are not valid"); 
   }
 
-  private showLoader(): void {
-    this.loaderService.show();
-  }
-  private hideLoader(): void {
-    this.loaderService.hide();
-  }
 
 }
