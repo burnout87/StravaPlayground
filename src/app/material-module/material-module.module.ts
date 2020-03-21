@@ -42,6 +42,9 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatTreeModule} from '@angular/material/tree';
+import {MAT_FORM_FIELD_DEFAULT_OPTIONS} from '@angular/material/form-field';
+import {DateAdapter, MAT_DATE_FORMATS} from '@angular/material/core';
+import {AppDateAdapter, APP_DATE_FORMATS} from './format-datepicker';
 
 @NgModule({
   imports: [
@@ -136,7 +139,11 @@ import {MatTreeModule} from '@angular/material/tree';
     PortalModule,
     ScrollingModule
   ],
-  providers: [ MatDatepickerModule ],
+  providers: [ 
+    { provide: DateAdapter, useClass: AppDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS },
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } }
+  ],
 })
 export class DemoMaterialModule {}
 

@@ -1,6 +1,9 @@
 import { NativeDateAdapter } from '@angular/material/core';
 import { MatDateFormats } from '@angular/material/core';
+import { Injectable } from '@angular/core';
 
+// format the way the date is dispalyed over the input box
+@Injectable()
 export class AppDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
     if (displayFormat === 'input') {
@@ -14,7 +17,9 @@ export class AppDateAdapter extends NativeDateAdapter {
     return date.toDateString();
   }
 }
-appearance: 'fill'
+
+// format the way the element of a date are dispalyed over the input box
+// this one is completely numeric
 export const APP_DATE_FORMATS: MatDateFormats = {
   parse: {
     dateInput: { month: 'short', year: 'numeric', day: 'numeric' },

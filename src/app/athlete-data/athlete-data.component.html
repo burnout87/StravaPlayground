@@ -1,10 +1,7 @@
-<div class="card-container" >
-    <table>
-        <td>
-        <tr><span class="athleteField">username</span> {{athleteData.username}}</tr>
-        <tr><span class="athleteField">city</span> {{athleteData.city}}</tr>
-        <tr><span class="athleteField">state</span> {{athleteData.state}}</tr>
-        <tr><span class="athleteField">country</span> {{athleteData.country}}</tr>
-        </td>
-    </table>
-</div>
+<mat-card class="example-card">
+    <mat-card-header>
+      <div mat-card-avatar class="example-header-image" [style.background-image]="'url(' + athleteData.profileImgUrl + ')'"></div>
+      <mat-card-title>{{athleteData.firstName}} {{athleteData.lastName}}</mat-card-title>
+      <mat-card-subtitle>{{athleteData.city}}</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>

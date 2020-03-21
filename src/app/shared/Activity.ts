@@ -6,7 +6,8 @@ export enum Type {
     Run = 1,
     Ride = 2,
     VirtualRide = 3,
-    AlpineSki = 4
+    AlpineSki = 4,
+    Hike = 5
 }
 
 export class Activity {

@@ -1,26 +1,30 @@
 export class Athlete {
     id: number;
-    username: string;
-    firstname: string;
-    lastname: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
     city: string;
     state: string;
     country: string;
+    profileImgUrl: string
     
     constructor(
         id: number, 
-        username: string, 
-        firstname: string, 
-        lastname: string,
+        userName: string, 
+        firstName: string, 
+        lastName: string,
         city: string,
         state: string,
-        country: string) {
+        country: string,
+        profileImgUrl: string) 
+      {
         this.id = id;
-        this.username = username;
-        this.firstname = firstname;
-        this.lastname = lastname;
+        this.userName = userName;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.city = city;
         this.state = state;
         this.country = country;
+        this.profileImgUrl = profileImgUrl;
       }
 }

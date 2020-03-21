@@ -7,9 +7,6 @@ import { Activity, Type } from './shared/Activity';
 import * as P from 'polyline-encoded';
 import { MapComponent } from './map/map.component';
 import * as moment from 'moment';
-import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
-import { AppDateAdapter, APP_DATE_FORMATS } from './material-module/format-datepicker';
 
 @Pipe({name: 'enumToArray'})
 export class EnumToArrayPipe implements PipeTransform {
@@ -21,22 +18,16 @@ export class EnumToArrayPipe implements PipeTransform {
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  providers: [
-    { provide: DateAdapter, useClass: AppDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS }
-  ]
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
 
   public retrievingActivities = false;
-  // public calendarStart: NgbDateStruct;
-  // public calendarEnd: NgbDateStruct;
   public calendarBegin: Date;
   public calendarEnd: Date;
   public activityToPlot:Activity;
   public activityTypeSelected:any;
-  public percentageSelected: any = 70;
+  public percentageSelected: any;
   public percentagesList: number[] = [10, 20, 30, 40, 50 , 60, 70, 80, 90, 100];
   public scope;
 
@@ -68,6 +59,7 @@ export class AppComponent {
           return {index: +o, name: this.types[o], value: this.types[o], text: this.types[o]}
       });
       this.activityTypeSelected = this.keyTypes[0].text;
+      this.percentageSelected = '70';
     this.bc.addEventListener('message', (event) => {
       this.processMsgBC(event.data);
     });
@@ -168,7 +160,8 @@ export class AppComponent {
           data.lastname,
           data.city,
           data.state,
-          data.country
+          data.country,
+          data.profile
         );
     });
   }
@@ -183,7 +176,8 @@ export class AppComponent {
           data.athlete.lastname,
           data.athlete.city,
           data.athlete.state,
-          data.athlete.country
+          data.athlete.country,
+          data.athlet.profile
         );
       });
   }
@@ -221,8 +215,6 @@ export class AppComponent {
   }
 
   plotActivitiesAreaSinceTimeSelected() {
-    
-    
     if(this.calendarEnd) {
       var dateEndSelected = moment()
         .year(this.calendarEnd.getFullYear())
