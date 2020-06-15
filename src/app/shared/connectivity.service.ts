@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as Rx from "rxjs";
 import { Observable, Subject } from 'rxjs';
+import { flatMap } from "rxjs/operators";
 import * as io from 'socket.io-client';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -56,13 +57,33 @@ export class ConnectivityService {
     return this.http.get(environment.requestAuthorizationUrlAPI, {responseType: 'text'});
   }
 
+  public getAuthorizationUrl(): string {
+    var authorizationUrl: string = environment.authorizationBaseUrl + "?response_type=" + environment.responseType + "&client_id=" + environment.client_id;
+    authorizationUrl += "&approval_prompt=" + environment.approval_prompt;
+    authorizationUrl += "&redirect_uri=" + environment.callback_auth;
+    authorizationUrl += "&state=authorized";
+    authorizationUrl += "&scope=read,read_all,profile:read_all,profile:write,activity:read,activity:read_all,activity:write";
+
+    return authorizationUrl;
+  }
+
   public refreshToken(): Rx.Observable<any> {
     return this.http.post(environment.requestTokenRefreshing, {responseType: 'json'});
   }
 
   public getBearerToken(code: string, state: string, scope: string): Rx.Observable<any> {
-    var endpoint: string = environment.getAuthenticationInfo += "?code=" + code + "&state=" + state + "&scope=" + scope;
-    return this.http.get(endpoint);
+
+    var data = {client_id: environment.client_id, client_secret: environment.client_secret, code: code, grant_type: 'authorization_code'};
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type':  'application/json'
+      })
+    };
+
+    // var endpoint: string = environment.getAuthenticationInfo += "?code=" + code + "&state=" + state + "&scope=" + scope;
+    // return this.http.get(endpoint);
+
+    return this.http.post(environment.getAccessTokenEndpoint, data, httpOptions);
   }
 
   public getAthleteActivitiesFrom(beginning: moment.Moment): Rx.Observable<any> {
@@ -96,6 +117,16 @@ export class ConnectivityService {
         })
     };
     return this.http.post(endpoint, pointVec, httpOptions);
+  }
+
+  public updateAccessTokenData(access_token: string, refresh_token: string, expires_at: string, expires_in: string): Rx.Observable<any> {
+    var data = {access_token: access_token, refresh_token: refresh_token, expires_at: expires_at, expires_in: expires_in};
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type':  'application/json'
+      })
+    };
+    return this.http.post(environment.updateAccessTokenDataEndpoint, data, httpOptions);
   }
 
   public getAthleteActivitiesIntersectionArea(
@@ -137,7 +168,38 @@ export class ConnectivityService {
   }
 
   public getAthleteInfo(): Rx.Observable<any> {
-    var endpoint: string = environment.getAthleteInfo;
-    return this.http.get(endpoint);
+
+    // get the access token
+    return this.http.post(environment.getAccessTokenInfoEndPoint, ['access_token'])
+      .pipe(
+        flatMap((data: any) => {
+          console.log(data);
+          const httpOptions = {
+            headers: new HttpHeaders({
+              'Authorization':  'Bearer ' + data.access_token
+            })
+          };
+          return this.http.get(environment.getAthleteInfoEndPoint_2, httpOptions);
+        })
+      );
+
+
+
+      // .subscribe(
+      //   (data) => {
+      //     console.log(data);
+      //     const httpOptions = {
+      //       headers: new HttpHeaders({
+      //         'Authorization':  'Bearer ' + data
+      //       })
+      //     };
+      //     return this.http.get(environment.getAthleteInfoEndPoint_2, httpOptions);
+      //   },
+      //   (error) => {
+      //     console.error('error getting token data ' + error);
+      //     return null;
+      //   });
+
+
   }
 }

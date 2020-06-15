@@ -49,7 +49,7 @@ export class AppComponent {
 
 
   constructor(private activatedRoute: ActivatedRoute, 
-    private wsService: ConnectivityService) {
+    private csService: ConnectivityService) {
     this.keyTypes = Object.keys(this.types)
       .filter(e => !isNaN(+e))
       .map(o => { 
@@ -116,7 +116,7 @@ export class AppComponent {
   }
 
   getAuthorizationState() {
-    this.wsService.getAuthorizationState()
+    this.csService.getAuthorizationState()
       .subscribe((data) => {
         this.stateAuthorization = data.state;
         if(this.stateAuthorization == "authorized")
@@ -135,15 +135,12 @@ export class AppComponent {
   }
 
   authorize() {
-    this.wsService.authorize()
-      .subscribe((data: string) => {
-        this.windowHandleAuth = window.open(data, 'OAuth2 Login', "width=500, height=600, left=0, top=0");
-        this.stateAuthorization = "authorization";
-      });
+    this.windowHandleAuth = window.open(this.csService.getAuthorizationUrl(), 'OAuth2 Login', "width=500, height=600, left=0, top=0");
+    this.stateAuthorization = "authorization";
   }
 
   refreshToken() {
-    this.wsService.refreshToken()
+    this.csService.refreshToken()
       .subscribe((data) => {
         if(data.message != "Bad Request")
           this.stateAuthorization = "refreshing";
@@ -151,7 +148,7 @@ export class AppComponent {
   }
 
   getAthleteInfo() {
-    this.wsService.getAthleteInfo()
+    this.csService.getAthleteInfo()
       .subscribe((data) => {
         this.athleteData = new Athlete(
           data.id,
@@ -167,8 +164,9 @@ export class AppComponent {
   }
 
   getBearerToken(code: string, state: string, scope: string) {
-    this.wsService.getBearerToken(code, state, scope)
+    this.csService.getBearerToken(code, state, scope)
       .subscribe((data) => {
+        // update athlete info
         this.athleteData = new Athlete(
           data.athlete.id,
           data.athlete.username,
@@ -177,8 +175,13 @@ export class AppComponent {
           data.athlete.city,
           data.athlete.state,
           data.athlete.country,
-          data.athlet.profile
+          data.athlete.profile
         );
+        // update access token data
+        this.csService.updateAccessTokenData(data.access_token, data.refresh_token, data.expires_at, data.expires_in)
+          .subscribe(data => {
+            console.log(data);
+          });
       });
   }
 
@@ -210,7 +213,7 @@ export class AppComponent {
     }
   }
 
-  updateActivityToPlot(activity: Activity) {
+  updateActivityToPlot(activity: Activity) { 
     this.activityToPlot = activity;
   }
 
@@ -239,7 +242,7 @@ export class AppComponent {
       try {
         this.retrievingActivities = true;
         // show loader
-        this.wsService.getAthleteActivitiesIntersectionArea(
+        this.csService.getAthleteActivitiesIntersectionArea(
           dateBeginSelected, dateEndSelected, 
           this.mapComp.getMapBounds(),
           this.activityTypeSelected, this.percentageSelected / 100).subscribe((data: any) => {
